@@ -126,7 +126,6 @@
     transition:opacity .22s ease, transform .22s ease;
   }
   #toast.show{opacity:1; transform:translateX(-50%) translateY(-6px); pointer-events:auto}
-  /* small responsive */
   @media (max-width:420px){
     .key-box{font-size:20px}
   }
@@ -155,7 +154,9 @@
 <script>
   // ---- ตั้งค่า ----
   const SECRET_SALT = 3390;
-  const INTERVAL_SECONDS = 50 * 60 * 60; // ปรับได้ (ตอนนี้ยังคง 50 ชม.)
+  // ถ้าจะเปลี่ยนเป็น 24 ชม. ให้ใช้บรรทัดล่างนี้แทน
+  // const INTERVAL_SECONDS = 24 * 60 * 60;
+  const INTERVAL_SECONDS = 50 * 60 * 60; // ปัจจุบัน 50 ชม.
   const ALLOWED_REFERRERS = ["linkvertise.com", "link-to.net"];
 
   const keyTextEl = document.getElementById("keyText");
@@ -165,7 +166,8 @@
   const copyBtn = document.getElementById("copyBtn");
 
   function deniedView() {
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;"><h1 style="color:#ff6b6b">❌ Access Denied: กรุณาผ่านลิงก์โฆษณาเท่านั้น</h1></div>';
+    // แทนที่ body ทั้งหมด เพื่อไม่ให้โค้ดเก่าโผล่
+    document.documentElement.innerHTML = '<body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><h1 style="color:#ff6b6b">❌ Access Denied: กรุณาผ่านลิงก์โฆษณาเท่านั้น</h1></body>';
   }
 
   function allowedReferrer() {
@@ -184,7 +186,6 @@
   }
 
   function generateKeyAndCountdown(){
-    // ถ้าต้องการปิดเช็ค ref ให้ comment ตรงนี้ออก
     if (!allowedReferrer()) {
       deniedView();
       return;
@@ -195,18 +196,14 @@
     const finalKey = "FLING-" + (cycle + SECRET_SALT);
     keyTextEl.innerText = finalKey;
 
-    // countdown until next cycle
     const nextChangeAt = (cycle + 1) * INTERVAL_SECONDS;
     let remaining = nextChangeAt - now;
-
     countdownEl.innerText = "อัปเดตถัดไป: " + formatHMS(remaining);
 
-    // update every second
     if (window._keyInterval) clearInterval(window._keyInterval);
     window._keyInterval = setInterval(()=> {
       remaining--;
       if (remaining <= 0) {
-        // recalc to avoid drift
         generateKeyAndCountdown();
         return;
       }
@@ -227,7 +224,6 @@
       await navigator.clipboard.writeText(t);
       showToast("คัดลอกแล้ว ✅");
     } catch (e) {
-      // fallback: select + execCommand (เก่า แต่บางบราว์เซอร์ยังใช้)
       const r = document.createRange();
       r.selectNodeContents(keyTextEl);
       const sel = window.getSelection();
@@ -238,67 +234,10 @@
     }
   }
 
-  // events
   keyBox.addEventListener("click", copyKey);
   copyBtn.addEventListener("click", copyKey);
 
-  // init
   generateKeyAndCountdown();
 </script>
-</body>
-</html>            margin: 20px 0;
-            border: 2px dashed #00ff88;
-            cursor: pointer;
-        }
-        .info { color: #888; font-size: 14px; }
-        .footer { margin-top: 20px; font-size: 12px; color: #555; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>DEWD3390 GET KEY</h1>
-    <p>ขอบคุณที่สนับสนุน! นี่คือกุญแจของคุณ:</p>
-    
-    <div class="key-box" id="key-display" onclick="copyKey()">กำลังคำนวณ...</div>
-    
-    <p class="info">กุญแจนี้จะเปลี่ยนอัตโนมัติทุก 50 ชั่วโมง</p>
-    <p style="font-size: 12px; color: #ffaa00;">(คลิกที่ตัวกุญแจเพื่อคัดลอก)</p>
-
-    <div class="footer">
-        Powered by dewd3390 System
-    </div>
-</div>
-
-<script>
-    // --- ตั้งค่าให้ตรงกับใน Launcher ---
-    const SECRET_SALT = 3390;
-    const INTERVAL_SECONDS = 50 * 60 * 60; // 50 ชั่วโมง
-
-    function generateKey() {
-        // เช็คว่ามาจาก Linkvertise หรือไม่ (Referrer Check)
-        // ถ้าคุณต้องการเปิดเช็ค ให้ลบคอมเมนต์ด้านล่างนี้ออกครับ 
-        if (!document.referrer.includes("linkvertise.com") && !document.referrer.includes("link-to.net")) {
-            document.body.innerHTML = "<h1>❌ Access Denied: กรุณาผ่านลิงก์โฆษณาเท่านั้น</h1>";
-            return;
-        }
-
-        const now = Math.floor(Date.now() / 1000);
-        const cycle = Math.floor(now / INTERVAL_SECONDS);
-        const finalKey = "FLING-" + (cycle + SECRET_SALT);
-        
-        document.getElementById("key-display").innerText = finalKey;
-    }
-
-    function copyKey() {
-        const keyText = document.getElementById("key-display").innerText;
-        navigator.clipboard.writeText(keyText);
-        alert("คัดลอกกุญแจแล้ว: " + keyText);
-    }
-
-    // รันฟังก์ชันเมื่อโหลดหน้าเว็บ
-    generateKey();
-</script>
-
 </body>
 </html>
