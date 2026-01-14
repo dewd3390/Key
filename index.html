@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEWD3390 Key System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f0f0f;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1a1a1a;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid #333;
+            max-width: 400px;
+        }
+        h1 { color: #00aaff; font-size: 24px; margin-bottom: 10px; }
+        .key-box {
+            background-color: #262626;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ff88;
+            letter-spacing: 2px;
+            margin: 20px 0;
+            border: 2px dashed #00ff88;
+            cursor: pointer;
+        }
+        .info { color: #888; font-size: 14px; }
+        .footer { margin-top: 20px; font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>DEWD3390 GET KEY</h1>
+    <p>ขอบคุณที่สนับสนุน! นี่คือกุญแจของคุณ:</p>
+    
+    <div class="key-box" id="key-display" onclick="copyKey()">กำลังคำนวณ...</div>
+    
+    <p class="info">กุญแจนี้จะเปลี่ยนอัตโนมัติทุก 50 ชั่วโมง</p>
+    <p style="font-size: 12px; color: #ffaa00;">(คลิกที่ตัวกุญแจเพื่อคัดลอก)</p>
+
+    <div class="footer">
+        Powered by dewd3390 System
+    </div>
+</div>
+
+<script>
+    // --- ตั้งค่าให้ตรงกับใน Launcher ---
+    const SECRET_SALT = 3390;
+    const INTERVAL_SECONDS = 50 * 60 * 60; // 50 ชั่วโมง
+
+    function generateKey() {
+        // เช็คว่ามาจาก Linkvertise หรือไม่ (Referrer Check)
+        // ถ้าคุณต้องการเปิดเช็ค ให้ลบคอมเมนต์ด้านล่างนี้ออกครับ 
+        if (!document.referrer.includes("linkvertise.com") && !document.referrer.includes("link-to.net")) {
+            document.body.innerHTML = "<h1>❌ Access Denied: กรุณาผ่านลิงก์โฆษณาเท่านั้น</h1>";
+            return;
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        const cycle = Math.floor(now / INTERVAL_SECONDS);
+        const finalKey = "FLING-" + (cycle + SECRET_SALT);
+        
+        document.getElementById("key-display").innerText = finalKey;
+    }
+
+    function copyKey() {
+        const keyText = document.getElementById("key-display").innerText;
+        navigator.clipboard.writeText(keyText);
+        alert("คัดลอกกุญแจแล้ว: " + keyText);
+    }
+
+    // รันฟังก์ชันเมื่อโหลดหน้าเว็บ
+    generateKey();
+</script>
+
+</body>
+</html>
