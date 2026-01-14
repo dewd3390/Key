@@ -1,40 +1,252 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEWD3390 Key System</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f0f0f;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #1a1a1a;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            text-align: center;
-            border: 1px solid #333;
-            max-width: 400px;
-        }
-        h1 { color: #00aaff; font-size: 24px; margin-bottom: 10px; }
-        .key-box {
-            background-color: #262626;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #00ff88;
-            letter-spacing: 2px;
-            margin: 20px 0;
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Key System</title>
+<style>
+  :root{
+    --bg:#0b0b0c;
+    --card:#121216;
+    --accent:#00bfff;
+    --accent-2:#00ff88;
+    --muted:#9aa3ad;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter, "Segoe UI", Tahoma, sans-serif;
+    background:
+      radial-gradient(1200px 400px at 10% 10%, rgba(0,191,255,0.04), transparent 8%),
+      radial-gradient(1000px 350px at 90% 90%, rgba(0,255,136,0.02), transparent 8%),
+      var(--bg);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
+  .card{
+    width:100%;
+    max-width:420px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+    padding:28px;
+    border-radius:14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    text-align:center;
+  }
+
+  h1{
+    margin:0 0 8px 0;
+    font-size:20px;
+    color:var(--accent);
+    letter-spacing:0.6px;
+  }
+
+  p.lead{
+    margin:0 0 18px 0;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  .key-box{
+    user-select:all;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:14px 18px;
+    border-radius:10px;
+    border:2px dashed rgba(0,255,136,0.18);
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    font-weight:700;
+    font-size:26px;
+    color:var(--accent-2);
+    letter-spacing:2px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .key-box:active{transform:scale(.995)}
+  .sub{
+    margin-top:10px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:16px;
+    gap:10px;
+  }
+
+  .count{
+    font-size:13px;
+    color:var(--muted);
+    background:rgba(255,255,255,0.01);
+    padding:8px 12px;
+    border-radius:8px;
+  }
+
+  .copy-btn{
+    background:linear-gradient(90deg,var(--accent),#56d6ff);
+    color:#001;
+    padding:8px 12px;
+    border-radius:8px;
+    border:none;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(0,191,255,0.06);
+  }
+
+  .footer{
+    margin-top:18px;
+    color:#6f757b;
+    font-size:12px;
+  }
+
+  /* toast */
+  #toast{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:22px;
+    background:#0b0b0c;
+    border:1px solid rgba(255,255,255,0.06);
+    padding:10px 14px;
+    border-radius:10px;
+    color:var(--accent-2);
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(-6px); pointer-events:auto}
+  /* small responsive */
+  @media (max-width:420px){
+    .key-box{font-size:20px}
+  }
+</style>
+</head>
+<body>
+  <div class="card" id="app">
+    <h1>Key System</h1>
+    <p class="lead">ขอบคุณที่สนับสนุน — นี่คือกุญแจของคุณ</p>
+
+    <div class="key-box" id="keyBox" title="คลิกเพื่อคัดลอก">
+      <span id="keyText">กำลังคำนวณ...</span>
+    </div>
+
+    <div class="meta">
+      <div class="count" id="countdown">อัปเดตถัดไป: --:--:--</div>
+      <button class="copy-btn" id="copyBtn">คัดลอก</button>
+    </div>
+
+    <div class="sub" id="subText">(คลิกที่กุญแจหรือปุ่มคัดลอกเพื่อคัดลอก)</div>
+    <div class="footer">Powered by Key System</div>
+  </div>
+
+  <div id="toast">คัดลอกแล้ว ✅</div>
+
+<script>
+  // ---- ตั้งค่า ----
+  const SECRET_SALT = 3390;
+  const INTERVAL_SECONDS = 50 * 60 * 60; // ปรับได้ (ตอนนี้ยังคง 50 ชม.)
+  const ALLOWED_REFERRERS = ["linkvertise.com", "link-to.net"];
+
+  const keyTextEl = document.getElementById("keyText");
+  const countdownEl = document.getElementById("countdown");
+  const toastEl = document.getElementById("toast");
+  const keyBox = document.getElementById("keyBox");
+  const copyBtn = document.getElementById("copyBtn");
+
+  function deniedView() {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;"><h1 style="color:#ff6b6b">❌ Access Denied: กรุณาผ่านลิงก์โฆษณาเท่านั้น</h1></div>';
+  }
+
+  function allowedReferrer() {
+    try {
+      const ref = document.referrer || "";
+      return ALLOWED_REFERRERS.some(s => ref.includes(s));
+    } catch { return false; }
+  }
+
+  function formatHMS(sec){
+    if (sec < 0) sec = 0;
+    const h = Math.floor(sec/3600);
+    const m = Math.floor((sec%3600)/60);
+    const s = sec % 60;
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+
+  function generateKeyAndCountdown(){
+    // ถ้าต้องการปิดเช็ค ref ให้ comment ตรงนี้ออก
+    if (!allowedReferrer()) {
+      deniedView();
+      return;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const cycle = Math.floor(now / INTERVAL_SECONDS);
+    const finalKey = "FLING-" + (cycle + SECRET_SALT);
+    keyTextEl.innerText = finalKey;
+
+    // countdown until next cycle
+    const nextChangeAt = (cycle + 1) * INTERVAL_SECONDS;
+    let remaining = nextChangeAt - now;
+
+    countdownEl.innerText = "อัปเดตถัดไป: " + formatHMS(remaining);
+
+    // update every second
+    if (window._keyInterval) clearInterval(window._keyInterval);
+    window._keyInterval = setInterval(()=> {
+      remaining--;
+      if (remaining <= 0) {
+        // recalc to avoid drift
+        generateKeyAndCountdown();
+        return;
+      }
+      countdownEl.innerText = "อัปเดตถัดไป: " + formatHMS(remaining);
+    }, 1000);
+  }
+
+  function showToast(text){
+    toastEl.innerText = text;
+    toastEl.classList.add("show");
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(()=> toastEl.classList.remove("show"), 1800);
+  }
+
+  async function copyKey(){
+    try {
+      const t = keyTextEl.innerText;
+      await navigator.clipboard.writeText(t);
+      showToast("คัดลอกแล้ว ✅");
+    } catch (e) {
+      // fallback: select + execCommand (เก่า แต่บางบราว์เซอร์ยังใช้)
+      const r = document.createRange();
+      r.selectNodeContents(keyTextEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+      try { document.execCommand('copy'); showToast("คัดลอกแล้ว ✅"); } catch { showToast("คัดลอกไม่สำเร็จ"); }
+      sel.removeAllRanges();
+    }
+  }
+
+  // events
+  keyBox.addEventListener("click", copyKey);
+  copyBtn.addEventListener("click", copyKey);
+
+  // init
+  generateKeyAndCountdown();
+</script>
+</body>
+</html>            margin: 20px 0;
             border: 2px dashed #00ff88;
             cursor: pointer;
         }
